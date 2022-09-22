@@ -37,10 +37,85 @@ public class HQLApp {
 		System.out.println("******************************************************************************************************");
 		getStudentsBetweenAge(20,45);
 		System.out.println("******************************************************************************************************");
+		getStudentsAgeSum();
+		System.out.println("******************************************************************************************************");
+		getStudentsAgeSumByCountry();
+		System.out.println("******************************************************************************************************");
+		updateAllStudentsAgeBy(2);
+		System.out.println("******************************************************************************************************");
+		deleteStudentsByAge(50);
+		System.out.println("******************************************************************************************************");
+		getAllStudentsNamed();
+		System.out.println("*************************************NATIVE*****************************************************************");
+		getAllStudentsNative();
+		System.out.println("*************************************NATIVE*****************************************************************");
+		getStudentsByAgeNative(24);
+		System.out.println("*************************************NATIVE*****************************************************************");
+		getStudentsByAgeNamed(24);
+		System.out.println("******************************************************************************************************");
+		getStudentsByNamePatternNamed("%a%");
+		System.out.println("******************************************************************************************************");
 		
 		transaction.commit();
 
 		session.close();
+	}
+
+	private static void deleteStudentsByAge(int age) {
+		
+		int rowsdeleted = session.createQuery("delete from Student s where s.age=:AGE").setParameter("AGE", age).executeUpdate();
+		System.out.println("No of Rows Deleted : " + rowsdeleted);
+		
+	}
+
+	private static void updateAllStudentsAgeBy(int increment) {
+
+		int rowsupdated = session.createQuery("update Student s set s.age=s.age+:INCREMENT").setParameter("INCREMENT", increment).executeUpdate();
+		System.out.println("No of Rows Updated : " + rowsupdated);
+	}
+
+	private static void getStudentsAgeSumByCountry() {
+		List<Object[]> list = session.createQuery("select s.country,sum(s.age) from Student s group by s.country", Object[].class).list();
+		for(Object[] temp:list) {
+		System.out.println(temp[0]+" - "+temp[1]);
+		}
+	}
+
+	private static void getStudentsAgeSum() {
+		List<Object> list = session.createQuery("select sum(s.age) from Student s", Object.class).list();
+		System.out.println(list);
+	}
+
+	private static void getStudentsByAgeNative(int age) {
+
+		List<Student> list = session.createNativeQuery("select * from students where age=:AGE", Student.class).setParameter("AGE", age).list();
+		list.forEach(System.out::println);
+	}
+
+	private static void getStudentsByNamePatternNamed(String namePattern) {
+
+		List<Student> list = session.createNamedQuery("myapp.allstudents.name.like", Student.class).setParameter("NAME_PATTERN", namePattern).list();
+		list.forEach(System.out::println);
+	}
+
+	private static void getStudentsByAgeNamed(int age) {
+
+		List<Student> list = session.createNamedQuery("myapp.allstudents.age",Student.class).setParameter("AGE", age).list();
+		list.forEach(System.out::println);
+	}
+
+	private static void getAllStudentsNative() {
+		List<Student> list = session.createNativeQuery("select * from students", Student.class).list();
+		list.forEach(System.out::println);
+	}
+
+	private static void getAllStudentsNamed() {
+		
+		//List<Student> list = session.createQuery("from Student", Student.class).list();
+		
+		List<Student> list = session.createNamedQuery("myapp.allstudents",Student.class).list();
+		
+		list.forEach(System.out::println);
 	}
 
 	private static void getNameAgeOfAllStudents() {
